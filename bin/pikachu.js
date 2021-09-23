@@ -10,12 +10,10 @@ const { program } = require('commander');
 const download = require('download-git-repo');
 const chalk = require('chalk');
 const fs = require('fs');
-const {
-	writeJson,
-    writeJs
-} = require('./utils');
-const templateUrl = 'git@gitlab.ziroom.com:design-fe/cherry/cherry-template-vue3_antv_ts.git';
-const componentsTemplateUrl = 'git@gitlab.ziroom.com:design-fe/fe-template/react-typescript-activity-template.git';
+const { writeJson } = require('./utils');
+const { templateUrl, componentsTemplateUrl } = require('./config');
+
+
 program.option('-c, --create<type>', '','');
 
 const dictionary = {
@@ -39,7 +37,7 @@ const dictionary = {
             },
             {
                 type:'text',
-                message:'请输入组件标题名称,示例:按钮',
+                message:'请输入组件页面标题名称,示例:地图',
                 name:'componentBarTitle'
             },
             {
@@ -51,17 +49,15 @@ const dictionary = {
         .then(answers => {
             //创建pikachu目录下components下的组件文件
             const _pwd = shell.pwd().stdout;
-            console.log(_pwd,'_pwd===🍌')
             const projectPath = `${_pwd}/src/pikachu/components/${answers.componentName}`;
-            const filename = `${projectPath}/template.vue`;
+            const filename = `${projectPath}/index.vue`;
             const componentsName = `${projectPath}/${answers.componentName}.vue`;
             shell.rm('-rf',projectPath);
             shell.mkdir(projectPath);
             const template = `direct:${templateUrl}`;
             download(template,projectPath,{clone:true},function (err) {
-                console.log(err,'err🍎')
                 if(err) {
-                    console.log(`${chalk.red('服务器出错了，下载失败！')}`)
+                    // console.log(`${chalk.red('服务器出错了，下载失败！')}`)
                 }else{
                     // fs.rename(finallName, componentsName, function(err) {
                     //     if (!err) {
@@ -76,7 +72,7 @@ const dictionary = {
                 })
             })
             //修改pages.json文件
-            writeJson(`${_pwd}/src/pages.json`,answers.componentLevel,{
+            writeJson(`${_pwd}/src/pages.json`,answers.componentLevel,'subPackages',{
                 "path": `${answers.componentName}/index`,
                 "style": {
                     "navigationBarTitleText": `${answers.componentBarTitle}`
@@ -89,13 +85,13 @@ const dictionary = {
             const componentsTemplate = `direct:${componentsTemplateUrl}`;
             download(componentsTemplate,componentsPath,{clone:true},function (err) {
                 if(err) {
-                    console.log(`${chalk.red('服务器出错了，下载失败！')}`)
+                    // console.log(`${chalk.red('服务器出错了，下载失败！')}`)
                 }else{
 
                 }
             })
-            //修改pages目录下的example下的components.config.ts
-            writeJs(`${_pwd}/src/pages/example/components.config.ts`,answers.componentLevel,{
+            //修改pages目录下的example下的components.json
+            writeJson(`${_pwd}/src/pages/example/components.json`,answers.componentLevel,'list',{
                 "path": `/${answers.componentLevel}/${answers.componentExampleName}/index`,
                 "title": `${answers.componentBarTitle}`
             })
